@@ -2,7 +2,7 @@ This is an exercise of Advent Of Code. The objective is to give a feedback of th
 
 Below is the description of the test.
 
-
+```
 ------------------------------------------------------------
 --- Day 10: Hoof It ---
 You all arrive at a Lava Production Facility on a floating island in the sky. As the others begin to search the massive industrial complex, you feel a small nose boop your leg and look down to discover a reindeer wearing a hard hat.
@@ -43,6 +43,7 @@ This trailhead has a score of 4 because every 9 is reachable via a hiking trail 
 765.987
 876....
 987....
+
 This topographic map contains two trailheads; the trailhead at the top has a score of 1, while the trailhead at the bottom has a score of 2:
 
 10..9..
@@ -62,7 +63,9 @@ Here's a larger example:
 32019012
 01329801
 10456732
+
 This larger example has 9 trailheads. Considering the trailheads in reading order, they have scores of 5, 6, 5, 3, 1, 3, 5, 3, and 5. Adding these scores together, the sum of the scores of all trailheads is 36.
 
 The reindeer gleefully carries over a protractor and adds it to the pile. What is the sum of the scores of all trailheads on your topographic map?
 
+```
