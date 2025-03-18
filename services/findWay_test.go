@@ -1,8 +1,9 @@
-package technicalTest
+package services
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestFindWay(t *testing.T) {
@@ -16,7 +17,7 @@ func TestFindWay(t *testing.T) {
 	}{
 		{"Day 10 Part 1", args{"InputTest.txt"}, 81},
 		{"Day 10 Part 1", args{"InputTest2.txt"}, 2},
-		{"Day 10 Part 2", args{"Input.txt"}, 12},
+		{"Day 10 Part 2", args{"Input.txt"}, 1722},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
