@@ -1,83 +1,78 @@
 package services
 
-import (
-	"fmt"
-	"technical_test/models"
-	"technical_test/repository"
-)
+import "technical_test/helpers"
 
-var maxCoordonates models.Coordonates
-
-func FindWay(input string) int {
-	matrix := repository.PrepareFile(input)
-	maxCoordonates = models.Coordonates{len(matrix), len(matrix[0])}
-
-	returnValue := proceed(matrix)
-	return returnValue
+type Coordinates struct {
+	x int
+	y int
 }
 
-func proceed(matrix [][]int) int {
-	allPathPossible := getAllPathPossible(matrix)
-	allUniquePath := getuniquePath(allPathPossible)
-	fmt.Println(allUniquePath)
-
-	return len(allPathPossible)
-}
-
-// remove duplicate path
-func getuniquePath(allPathPossible [][2]models.Coordonates) [][2]models.Coordonates {
-	var uniquePath [][2]models.Coordonates
-	for _, path := range allPathPossible {
-		if !isIn(uniquePath, path) {
-			uniquePath = append(uniquePath, path)
-		}
+func FindWay(input string) (int, error) {
+	matrix, err := helpers.PrepareFile(input)
+	if err != nil {
+		return 0, err
 	}
-	return uniquePath
-}
 
-// check if path is already in the list
-func isIn(uniquePath [][2]models.Coordonates, path [2]models.Coordonates) bool {
-	for _, unique := range uniquePath {
-		if unique[0] == path[0] && unique[1] == path[1] {
-			return true
-		}
+	if len(matrix) == 0 || len(matrix[0]) == 0 {
+		return 0, nil
 	}
-	return false
-}
+	maxCoords := Coordinates{x: len(matrix), y: len(matrix[0])}
 
-// get all path possible
-func getAllPathPossible(matrix [][]int) [][2]models.Coordonates {
-	var pathPossible [][2]models.Coordonates
-	for x, line := range matrix {
-		for y, cell := range line {
-			if cell == 0 {
-				initialPosition := models.Coordonates{x, y}
-				go findNextStep(matrix, initialPosition, initialPosition, initialPosition, pathPossible)
+	totalScore := 0
+	for x, row := range matrix {
+		for y, cell := range row {
+			if cell == 0 { // Trailhead
+				score := calculateTrailheadScore(matrix, Coordinates{x, y}, maxCoords)
+				totalScore += score
 			}
 		}
 	}
-
-	return pathPossible
+	return totalScore, nil
 }
 
-// FindNextStep find next step based on the current position, previous position, initial position and the matrix
-// return all path possible
-func findNextStep(matrix [][]int, position models.Coordonates, previousPosition models.Coordonates, initialPosition models.Coordonates, pathPossible [][2]models.Coordonates) [][2]models.Coordonates {
+func calculateTrailheadScore(matrix [][]int, start Coordinates, maxCoords Coordinates) int {
+	visited := make(map[Coordinates]struct{})
+	reachableNines := make(map[Coordinates]struct{})
+	findReachableNines(matrix, start, -1, visited, reachableNines, maxCoords)
+	return len(reachableNines)
+}
 
-	if position.x < 0 || position.y < 0 || position.x >= maxCoordonates.x || position.y >= maxCoordonates.y {
-		return pathPossible
-	}
-	if matrix[position.x][position.y] == 9 && matrix[previousPosition.x][previousPosition.y] == 8 {
-		path := [2]models.Coordonates{initialPosition, position}
-		pathPossible = append(pathPossible, path)
-		return pathPossible
-	}
-	if position == previousPosition || matrix[position.x][position.y] == matrix[previousPosition.x][previousPosition.y]+1 {
-		pathPossible = findNextStep(matrix, models.Coordonates{position.X + 1, position.Y}, position, initialPosition, pathPossible)
-		pathPossible = findNextStep(matrix, models.Coordonates{position.X - 1, y: position.y}, position, initialPosition, pathPossible)
-		pathPossible = findNextStep(matrix, models.Coordonates{position.X, position.Y + 1}, position, initialPosition, pathPossible)
-		pathPossible = findNextStep(matrix, models.Coordonates{position.Y, position.Y - 1}, position, initialPosition, pathPossible)
+func findReachableNines(matrix [][]int, pos Coordinates, prevVal int, visited, reachableNines map[Coordinates]struct{}, maxCoords Coordinates) {
+	// Boundary check
+	if pos.x < 0 || pos.y < 0 || pos.x >= maxCoords.x || pos.y >= maxCoords.y {
+		return
 	}
 
-	return pathPossible
+	currentVal := matrix[pos.x][pos.y]
+
+	// If we've visited this position with a valid sequence, no need to revisit
+	if _, ok := visited[pos]; ok {
+		return
+	}
+
+	// Check if this is a valid step: either the start (prevVal = -1) or increment by 1
+	if prevVal == -1 && currentVal != 0 { // Must start at 0
+		return
+	}
+	if prevVal != -1 && currentVal != prevVal+1 { // Must increase by exactly 1
+		return
+	}
+
+	visited[pos] = struct{}{}
+
+	// If we reach a 9, record it
+	if currentVal == 9 {
+		reachableNines[pos] = struct{}{}
+	}
+
+	directions := []Coordinates{
+		{x: pos.x + 1, y: pos.y},
+		{x: pos.x - 1, y: pos.y},
+		{x: pos.x, y: pos.y + 1},
+		{x: pos.x, y: pos.y - 1},
+	}
+
+	for _, next := range directions {
+		findReachableNines(matrix, next, currentVal, visited, reachableNines, maxCoords)
+	}
 }

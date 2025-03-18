@@ -15,13 +15,18 @@ func TestFindWay(t *testing.T) {
 		args     args
 		expected int
 	}{
-		{"Day 10 Part 1", args{"InputTest.txt"}, 81},
-		{"Day 10 Part 1", args{"InputTest2.txt"}, 2},
-		{"Day 10 Part 2", args{"Input.txt"}, 1722},
+		{"1", args{"../tests/InputTest.txt"}, 36},
+		{"2", args{"../tests/InputTest2.txt"}, 2},
+		{"3", args{"../tests/Input.txt"}, 786},
+		{"4", args{"../tests/inputTest3.txt"}, 566},
+		{"5", args{"../tests/inputTest4.txt"}, 2},
+		{"5", args{"../tests/inputTest5.txt"}, 4},
+		{"5", args{"../tests/inputTest6.txt"}, 3},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := FindWay(tt.args.input)
+			result, err := FindWay(tt.args.input)
+			assert.NoError(t, err)
 			assert.Equal(t, tt.expected, result)
 		})
 	}

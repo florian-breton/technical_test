@@ -1,42 +1,38 @@
 package helpers
 
 import (
-	"fmt"
 	"os"
 	"strconv"
 	"strings"
 )
 
-func Explode(text, delimiter string) []string {
-	if len(delimiter) > len(text) {
-		return strings.Split(delimiter, text)
-	} else {
-		return strings.Split(text, delimiter)
+func parse(input string) ([][]int, error) {
+	lines := strings.Split(strings.TrimSpace(input), "\n")
+	if len(lines) == 0 {
+		return nil, nil
 	}
-}
-
-func StringToInt(s string) int {
-	n, err := strconv.Atoi(s)
-	if err != nil {
-		// handle error
-		fmt.Println(err)
-		os.Exit(2)
-	}
-	return n
-}
-
-func Parse(input string) [][]int {
-	line := Explode(input, "\n")
 	var matrix [][]int
-
-	for _, item := range line {
-		lineTab := Explode(item, "")
-		var matrixLine []int
-		for _, cell := range lineTab {
-			matrixLine = append(matrixLine, StringToInt(cell))
+	for _, line := range lines {
+		var row []int
+		for _, char := range strings.TrimSpace(line) {
+			n, err := strconv.Atoi(string(char))
+			if err != nil {
+				row = append(row, -1)
+			} else {
+				row = append(row, n)
+			}
 		}
-		matrix = append(matrix, matrixLine)
+		if len(row) > 0 {
+			matrix = append(matrix, row)
+		}
 	}
+	return matrix, nil
+}
 
-	return matrix
+func PrepareFile(input string) ([][]int, error) {
+	dat, err := os.ReadFile(input)
+	if err != nil {
+		return nil, err
+	}
+	return parse(string(dat))
 }
